@@ -95,3 +95,7 @@ yarn-error.log*
 
 backend/service-account.json
 backend/token.json
+# Local secrets
+.env
+backend/vitapulse-clinic-bb83f6392b8d.json
+backend/credentials/*.json
