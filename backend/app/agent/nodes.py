@@ -80,6 +80,53 @@ def _ensure_booking_keys(data: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 
+def _serialize_booking_state_for_prompt(data: Dict[str, Any]) -> str:
+    """Serialize booking state safely for prompt context."""
+    booking_state = _ensure_booking_keys(data)
+    normalized_datetime = booking_state.get("normalized_datetime")
+    if hasattr(normalized_datetime, "isoformat"):
+        booking_state["normalized_datetime"] = normalized_datetime.isoformat()
+    return json.dumps(booking_state, ensure_ascii=True)
+
+
+def merge_booking_state(old_state: Dict[str, Any], new_data: Dict[str, Any]) -> Dict[str, Any]:
+    """Merge LLM booking extraction with prior booking state for multi-turn continuity."""
+    old_normalized = _ensure_booking_keys(old_state)
+    new_normalized = _ensure_booking_keys(new_data)
+
+    merged: Dict[str, Any] = {}
+
+    # Preserve prior values unless the model provides a non-empty replacement.
+    for key in ["patient_name", "email", "service", "requested_date_text", "requested_time_text", "normalized_datetime", "notes"]:
+        new_value = new_normalized.get(key)
+        old_value = old_normalized.get(key)
+        if isinstance(new_value, str):
+            merged[key] = new_value if new_value.strip() else old_value
+        else:
+            merged[key] = new_value if new_value else old_value
+
+    has_complete_datetime = bool(merged.get("normalized_datetime"))
+    if has_complete_datetime:
+        merged["needs_followup"] = False
+        merged["followup_question"] = ""
+    else:
+        if isinstance(new_data.get("needs_followup"), bool):
+            merged["needs_followup"] = new_data["needs_followup"]
+        else:
+            merged["needs_followup"] = bool(old_normalized.get("needs_followup", False))
+
+        merged["followup_question"] = (
+            new_normalized.get("followup_question")
+            if new_normalized.get("followup_question")
+            else old_normalized.get("followup_question", "")
+        )
+
+    if not merged.get("needs_followup", False):
+        merged["followup_question"] = ""
+
+    return _ensure_booking_keys(merged)
+
+
 def _extract_details(state: AgentState, intent: str) -> AgentState:
     """
     Extract structured details from user message using LLM.
@@ -96,7 +143,15 @@ def _extract_details(state: AgentState, intent: str) -> AgentState:
     if intent not in prompts_map:
         return state
     
-    prompt = prompts_map[intent].format(message=message)
+    if intent == "booking":
+        existing_booking_state = _ensure_booking_keys(state)
+        prompt = prompts_map[intent].format(
+            existing_state=_serialize_booking_state_for_prompt(existing_booking_state),
+            message=message,
+        )
+    else:
+        existing_booking_state = {}
+        prompt = prompts_map[intent].format(message=message)
     result = llm.invoke(prompt)
     
     # Extract text content
@@ -127,6 +182,7 @@ def _extract_details(state: AgentState, intent: str) -> AgentState:
 
     if intent == "booking":
         data = _ensure_booking_keys(data)
+        data = merge_booking_state(existing_booking_state, data)
     
     # Parse datetime fields
     if "normalized_datetime" in data and data["normalized_datetime"]:
