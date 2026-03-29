@@ -5,10 +5,10 @@ function HeroSection() {
     <section className="hero card">
       <div className="hero-content">
         <p className="hero-kicker">VitaPulse Smart Reception</p>
-        <h1>Your front desk, elevated with AI</h1>
+        <h1>Modern Clinic Reception. One Intelligent Dashboard.</h1>
         <p>
-          VitaPulse Clinic assists patients instantly, keeps appointment workflows smooth,
-          and helps your team stay focused on care.
+          Handle booking, follow-ups, and clinic queries in a polished workflow built for
+          real front-desk teams. Faster responses for patients, fewer manual steps for staff.
         </p>
         <div className="hero-actions">
           <Link className="btn btn-primary" to="/chat">Open Assistant</Link>

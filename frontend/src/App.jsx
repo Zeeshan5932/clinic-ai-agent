@@ -5,6 +5,7 @@ import Home from "./pages/Home";
 import ChatPage from "./pages/ChatPage";
 import AppointmentsPage from "./pages/AppointmentsPage";
 import FAQPage from "./pages/FAQPage";
+import UserGuidePage from "./pages/UserGuidePage";
 import NotFound from "./pages/NotFound";
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
           <Route path="/chat" element={<ChatPage />} />
           <Route path="/appointments" element={<AppointmentsPage />} />
           <Route path="/faq" element={<FAQPage />} />
+          <Route path="/guide" element={<UserGuidePage />} />
           <Route path="/home" element={<Navigate to="/" replace />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
