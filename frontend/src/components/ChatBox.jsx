@@ -20,7 +20,7 @@ function ChatBox({
   return (
     <section className="chatbox card">
       <div className="chatbox-head">
-        <h2>Clinic AI Assistant</h2>
+        <h2>VitaPulse AI Assistant</h2>
         <button type="button" className="btn btn-ghost" onClick={onClear}>
           Clear Conversation
         </button>
@@ -29,13 +29,13 @@ function ChatBox({
       <div className="chatbox-messages" ref={listRef}>
         {messages.length === 0 && (
           <div className="empty-state">
-            <p>Start the conversation. Ask about appointments, services, pricing, or timings.</p>
+            <p>Start a conversation about appointments, services, fees, or working hours.</p>
           </div>
         )}
         {messages.map((message) => (
           <ChatMessage key={message.id} message={message} />
         ))}
-        {isLoading && <LoadingSpinner label="Clinic assistant is typing..." />}
+        {isLoading && <LoadingSpinner label="VitaPulse assistant is typing..." />}
       </div>
 
       {error ? <p className="error-text">{error}</p> : null}
@@ -43,7 +43,7 @@ function ChatBox({
       <form className="chatbox-form" onSubmit={handleSubmit}>
         <input
           type="text"
-          placeholder="Type your message..."
+          placeholder="Ask VitaPulse Clinic anything..."
           value={input}
           onChange={(event) => onInputChange(event.target.value)}
           disabled={isLoading}

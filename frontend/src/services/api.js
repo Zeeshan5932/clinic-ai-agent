@@ -1,4 +1,11 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+const NORMALIZED_API_BASE_URL = API_BASE_URL.endsWith("/")
+  ? API_BASE_URL.slice(0, -1)
+  : API_BASE_URL;
+
+function buildApiUrl(path) {
+  return `${NORMALIZED_API_BASE_URL}${path}`;
+}
 
 async function parseResponse(response) {
   const contentType = response.headers.get("content-type") || "";
@@ -17,24 +24,13 @@ async function parseResponse(response) {
 export async function sendChatMessage(message) {
   const payload = { message };
 
-  // Prefer /chat per requirement, then fallback to /api/v1/chat for newer backend routes.
-  const endpoints = ["/chat", "/api/v1/chat"];
-  let lastError = null;
+  const response = await fetch(buildApiUrl("/api/v1/chat"), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
 
-  for (const endpoint of endpoints) {
-    try {
-      const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      return await parseResponse(response);
-    } catch (error) {
-      lastError = error;
-    }
-  }
-
-  throw lastError || new Error("Unable to reach backend API.");
+  return parseResponse(response);
 }
 
 export async function fetchHealthStatus() {
@@ -43,7 +39,7 @@ export async function fetchHealthStatus() {
 
   for (const endpoint of endpoints) {
     try {
-      const response = await fetch(`${API_BASE_URL}${endpoint}`);
+      const response = await fetch(buildApiUrl(endpoint));
       return await parseResponse(response);
     } catch (error) {
       lastError = error;

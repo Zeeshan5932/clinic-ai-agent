@@ -24,12 +24,11 @@ async def chat(request: ChatRequest):
                 detail="Message cannot be empty",
             )
         
-        # Run agent graph
+        # Run pre-compiled agent graph
         state = {"raw_message": request.message.strip()}
-        
-        # Compile and invoke graph
-        compiled_graph = agent_graph.compile()
-        final_state = compiled_graph.invoke(state)
+
+        # Invoke graph and read final response from terminal state
+        final_state = agent_graph.invoke(state)
         
         response = final_state.get("response", "Sorry, I couldn't process your request.")
         logger.info(f"Chat request processed: {request.message[:50]}...")

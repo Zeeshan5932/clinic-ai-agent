@@ -15,8 +15,11 @@ class Appointment(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     patient_name = Column(String, nullable=False)
+    email = Column(String, nullable=True, index=True)
     service = Column(String, nullable=False)
     scheduled_time = Column(DateTime, nullable=False)
+    notes = Column(String, nullable=True)
+    google_event_id = Column(String, nullable=True, index=True)
     status = Column(Enum(AppointmentStatus), default=AppointmentStatus.scheduled)
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())

@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import ChatBox from "../components/ChatBox";
 import QuickActions from "../components/QuickActions";
@@ -7,6 +7,7 @@ import { createMessage } from "../utils/helpers";
 
 function ChatPage() {
   const location = useLocation();
+  const processedStarterRef = useRef(null);
 
   const {
     messages,
@@ -21,17 +22,19 @@ function ChatPage() {
   } = useChat([
     createMessage(
       "assistant",
-      "Welcome to Clinic AI Receptionist. How can I help you today?"
+      "Welcome to VitaPulse Clinic Assistant. How can I help you today?"
     ),
   ]);
 
   useEffect(() => {
     const starterMessage = location.state?.starterMessage;
-    if (starterMessage) {
-      submitMessage(starterMessage);
-      window.history.replaceState({}, document.title);
-    }
-  }, [location.state, submitMessage]);
+    if (!starterMessage) return;
+    if (processedStarterRef.current === starterMessage) return;
+
+    processedStarterRef.current = starterMessage;
+    submitMessage(starterMessage);
+    window.history.replaceState({}, document.title);
+  }, [location.state?.starterMessage, submitMessage]);
 
   return (
     <div className="page-grid-chat">

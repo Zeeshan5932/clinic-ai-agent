@@ -43,6 +43,7 @@ class Settings:
     SMTP_USER: str = os.getenv("SMTP_USER", "")
     SMTP_PASSWORD: str = os.getenv("SMTP_PASSWORD", "")
     EMAIL_FROM: str = os.getenv("EMAIL_FROM", "")
+    EMAIL_FROM_NAME: str = os.getenv("EMAIL_FROM_NAME", "Clinic Reception")
     
     # SMS (Twilio) settings
     TWILIO_ACCOUNT_SID: str = os.getenv("TWILIO_ACCOUNT_SID", "")
@@ -70,7 +71,7 @@ class Settings:
     DEFAULT_APPOINTMENT_DURATION_MINUTES: int = int(
         os.getenv("DEFAULT_APPOINTMENT_DURATION_MINUTES", "60")
     )
-    TIMEZONE: str = os.getenv("TIMEZONE", "UTC")
+    TIMEZONE: str = os.getenv("TIMEZONE", "Asia/Karachi")
 
 
 settings = Settings()

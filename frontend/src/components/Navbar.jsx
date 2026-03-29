@@ -7,8 +7,8 @@ function Navbar() {
         <NavLink to="/" className="brand">
           <span className="brand-mark">+</span>
           <div>
-            <strong>Clinic AI Agent</strong>
-            <small>Reception Dashboard</small>
+            <strong>VitaPulse Clinic</strong>
+            <small>Digital Reception Dashboard</small>
           </div>
         </NavLink>
 

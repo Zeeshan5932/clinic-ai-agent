@@ -1,15 +1,102 @@
-import logging
-from datetime import datetime
+from datetime import datetime, timedelta
+from pathlib import Path
+from zoneinfo import ZoneInfo
 
-logger = logging.getLogger(__name__)
+from google.oauth2 import service_account
+from googleapiclient.discovery import build
+
+from app.core.logging import logger
+from app.core.config import settings
+
+GOOGLE_CALENDAR_SCOPES = ["https://www.googleapis.com/auth/calendar"]
+_calendar_service = None
 
 
-def create_calendar_event(patient_name: str, service: str, when: datetime) -> str:
-    """
-    Create a calendar event. In production, integrate with Google Calendar/Outlook.
-    """
-    logger.info(f"Creating calendar event for {patient_name} - {service} at {when}")
-    return f"Calendar event created for {patient_name} on {when.isoformat()}"
+def _resolve_credentials_path(credentials_file: str) -> Path:
+    """Resolve credentials path against backend directory when a relative path is provided."""
+    candidate = Path(credentials_file)
+    if candidate.is_absolute():
+        return candidate
+    backend_dir = Path(__file__).resolve().parents[2]
+    return (backend_dir / candidate).resolve()
+
+
+def _ensure_timezone_aware(start_datetime: datetime) -> datetime:
+    """Ensure datetime has timezone info using configured clinic timezone."""
+    timezone = ZoneInfo(settings.TIMEZONE)
+    if start_datetime.tzinfo is None:
+        return start_datetime.replace(tzinfo=timezone)
+    return start_datetime.astimezone(timezone)
+
+
+def get_calendar_service():
+    """Build and cache Google Calendar API service client."""
+    global _calendar_service
+
+    if _calendar_service is not None:
+        return _calendar_service
+
+    if not settings.GOOGLE_CALENDAR_CREDENTIALS_FILE:
+        raise ValueError("GOOGLE_CALENDAR_CREDENTIALS_FILE is not configured")
+    if not settings.GOOGLE_CALENDAR_ID:
+        raise ValueError("GOOGLE_CALENDAR_ID is not configured")
+
+    credentials_path = _resolve_credentials_path(settings.GOOGLE_CALENDAR_CREDENTIALS_FILE)
+    if not credentials_path.exists():
+        raise FileNotFoundError(f"Google credentials file not found: {credentials_path}")
+
+    credentials = service_account.Credentials.from_service_account_file(
+        str(credentials_path),
+        scopes=GOOGLE_CALENDAR_SCOPES,
+    )
+
+    _calendar_service = build("calendar", "v3", credentials=credentials, cache_discovery=False)
+    return _calendar_service
+
+
+def create_calendar_event(
+    patient_name: str,
+    service_name: str,
+    start_datetime: datetime,
+    duration_minutes: int | None = None,
+    description: str = "",
+) -> str:
+    """Create an event in Google Calendar and return the generated Google event ID."""
+    calendar_service = get_calendar_service()
+
+    start_at = _ensure_timezone_aware(start_datetime)
+    event_duration = duration_minutes or settings.DEFAULT_APPOINTMENT_DURATION_MINUTES
+    end_at = start_at + timedelta(minutes=event_duration)
+
+    event_payload = {
+        "summary": f"{service_name} - {patient_name}",
+        "description": description or f"Appointment for {patient_name}",
+        "start": {
+            "dateTime": start_at.isoformat(),
+            "timeZone": settings.TIMEZONE,
+        },
+        "end": {
+            "dateTime": end_at.isoformat(),
+            "timeZone": settings.TIMEZONE,
+        },
+    }
+
+    event = (
+        calendar_service.events()
+        .insert(calendarId=settings.GOOGLE_CALENDAR_ID, body=event_payload)
+        .execute()
+    )
+
+    event_id = event.get("id")
+    if not event_id:
+        raise RuntimeError("Google Calendar event was created without an event ID")
+
+    logger.info(
+        "Google Calendar event created successfully: patient=%s event_id=%s",
+        patient_name,
+        event_id,
+    )
+    return event_id
 
 
 def update_calendar_event(event_id: str, new_time: datetime) -> str:

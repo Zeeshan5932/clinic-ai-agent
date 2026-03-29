@@ -14,6 +14,7 @@ from app.schemas.appointment import (
     AppointmentStatus,
 )
 from app.core.logging import logger
+from app.services.calendar_service import create_calendar_event
 
 router = APIRouter(
     prefix="/api/v1/appointments",
@@ -73,6 +74,25 @@ async def create_appointment(
         db.add(db_appointment)
         db.commit()
         db.refresh(db_appointment)
+
+        try:
+            event_id = create_calendar_event(
+                patient_name=db_appointment.patient_name,
+                service_name=db_appointment.service,
+                start_datetime=db_appointment.scheduled_time,
+                description=f"Appointment ID: {db_appointment.id}",
+            )
+            db_appointment.google_event_id = event_id
+            db.commit()
+            db.refresh(db_appointment)
+        except Exception as calendar_error:
+            db.rollback()
+            logger.error(
+                "Appointment %s saved, but Google Calendar sync failed: %s",
+                db_appointment.id,
+                calendar_error,
+            )
+
         logger.info(f"Appointment {db_appointment.id} created")
         return db_appointment
     except Exception as e:

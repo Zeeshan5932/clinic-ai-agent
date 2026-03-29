@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { sendChatMessage } from "../services/api";
 import { createMessage } from "../utils/helpers";
 
@@ -8,6 +8,7 @@ export function useChat(initialMessages = []) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const listRef = useRef(null);
+  const inFlightRef = useRef(false);
 
   const canSend = useMemo(() => input.trim().length > 0 && !isLoading, [input, isLoading]);
 
@@ -16,9 +17,11 @@ export function useChat(initialMessages = []) {
     listRef.current.scrollTop = listRef.current.scrollHeight;
   }, [messages, isLoading]);
 
-  async function submitMessage(text) {
+  const submitMessage = useCallback(async (text) => {
     const cleanText = (text || "").trim();
-    if (!cleanText || isLoading) return;
+    if (!cleanText || inFlightRef.current) return;
+
+    inFlightRef.current = true;
 
     setError("");
     setInput("");
@@ -41,15 +44,16 @@ export function useChat(initialMessages = []) {
       );
       setMessages((prev) => [...prev, assistantMsg]);
     } finally {
+      inFlightRef.current = false;
       setIsLoading(false);
     }
-  }
+  }, []);
 
-  function clearConversation() {
+  const clearConversation = useCallback(() => {
     setMessages([]);
     setError("");
     setInput("");
-  }
+  }, []);
 
   return {
     messages,
