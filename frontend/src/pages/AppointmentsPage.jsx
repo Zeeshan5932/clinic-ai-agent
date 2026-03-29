@@ -49,7 +49,7 @@ function AppointmentsPage() {
     <section className="page-stack">
       <div className="page-title">
         <h1>Appointments</h1>
-        <p>Review upcoming and historical patient bookings.</p>
+        <p>Review upcoming and historical bookings at VitaPulse Clinic.</p>
       </div>
 
       {loading ? <LoadingSpinner label="Loading appointments..." /> : null}

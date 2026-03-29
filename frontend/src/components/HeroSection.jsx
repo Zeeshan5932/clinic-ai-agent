@@ -4,26 +4,26 @@ function HeroSection() {
   return (
     <section className="hero card">
       <div className="hero-content">
-        <p className="hero-kicker">Smart Front Desk Experience</p>
-        <h1>Clinic AI Receptionist</h1>
+        <p className="hero-kicker">VitaPulse Smart Reception</p>
+        <h1>Your front desk, elevated with AI</h1>
         <p>
-          Handle appointments, answer patient questions, and streamline clinic communication
-          with a professional AI assistant.
+          VitaPulse Clinic assists patients instantly, keeps appointment workflows smooth,
+          and helps your team stay focused on care.
         </p>
         <div className="hero-actions">
-          <Link className="btn btn-primary" to="/chat">Start Chat</Link>
+          <Link className="btn btn-primary" to="/chat">Open Assistant</Link>
           <Link className="btn btn-secondary" to="/chat">Book Appointment</Link>
           <Link className="btn btn-ghost" to="/appointments">View Appointments</Link>
         </div>
       </div>
       <div className="hero-aside">
         <div className="metric-card">
-          <h3>Fast Response</h3>
-          <p>Answer patient queries in seconds with AI-powered chat support.</p>
+          <h3>Fast Patient Replies</h3>
+          <p>Deliver clear answers in seconds with assistant-guided conversations.</p>
         </div>
         <div className="metric-card">
-          <h3>Unified Workflow</h3>
-          <p>Book, reschedule, and cancel appointments from a single interface.</p>
+          <h3>Unified Scheduling Flow</h3>
+          <p>Book, reschedule, and cancel appointments in one consistent experience.</p>
         </div>
       </div>
     </section>

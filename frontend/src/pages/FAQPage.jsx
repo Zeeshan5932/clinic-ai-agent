@@ -3,7 +3,7 @@ function FAQPage() {
     <section className="page-stack">
       <div className="page-title">
         <h1>Clinic Information</h1>
-        <p>Common details patients ask for regularly.</p>
+        <p>Frequently requested details for VitaPulse Clinic patients.</p>
       </div>
 
       <div className="faq-grid">
@@ -19,12 +19,12 @@ function FAQPage() {
 
         <article className="card">
           <h3>Email</h3>
-          <p>clinic@example.com</p>
+          <p>hello@vitapulseclinic.com</p>
         </article>
 
         <article className="card">
           <h3>Address</h3>
-          <p>Your Clinic Address</p>
+          <p>VitaPulse Clinic Address</p>
         </article>
       </div>
     </section>

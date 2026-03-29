@@ -2,7 +2,7 @@ const QUICK_ACTIONS = [
   { label: "Book Appointment", message: "I want to book an appointment for a skin consultation." },
   { label: "Reschedule Appointment", message: "I need to reschedule my appointment. My appointment ID is 1." },
   { label: "Cancel Appointment", message: "Please cancel my appointment. My appointment ID is 1." },
-  { label: "Ask Clinic Timings", message: "What are your clinic working hours?" },
+  { label: "Check Clinic Hours", message: "What are your clinic working hours?" },
 ];
 
 function QuickActions({ onAction }) {
