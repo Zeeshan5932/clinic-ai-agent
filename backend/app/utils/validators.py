@@ -132,7 +132,6 @@ def validate_booking_details(data: Dict[str, Any]) -> Dict[str, Any]:
             invalid_fields.append("email")
     else:
         normalized["email"] = ""
-        missing_fields.append("email")
 
     service = normalized.get("service")
     if is_non_empty_string(service):
@@ -191,11 +190,10 @@ def build_missing_booking_message(missing_fields: List[str], invalid_fields: Lis
         return "Please share a valid future appointment time within clinic hours (8 AM to 10 PM)."
 
     if "email" in invalid_fields:
-        return "Please share a valid email address so I can send your booking confirmation."
+        return "Please share a valid email address format, or continue without email."
 
     field_labels = {
         "patient_name": "your name",
-        "email": "your email",
         "service": "service",
         "scheduled_time": "date and time",
     }

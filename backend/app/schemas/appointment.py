@@ -27,6 +27,9 @@ class AppointmentUpdate(BaseModel):
 
 class AppointmentResponse(AppointmentBase):
     id: int
+    email: Optional[str] = None
+    notes: Optional[str] = None
+    google_event_id: Optional[str] = None
     status: AppointmentStatus
     created_at: datetime
     updated_at: datetime
