@@ -13,12 +13,30 @@ _calendar_service = None
 
 
 def _resolve_credentials_path(credentials_file: str) -> Path:
-    """Resolve credentials path against backend directory when a relative path is provided."""
+    """Resolve credentials path from absolute, CWD-relative, backend-relative, or project-root-relative inputs."""
     candidate = Path(credentials_file)
     if candidate.is_absolute():
         return candidate
+
+    # 1) Try path as provided relative to current working directory.
+    cwd_candidate = candidate.resolve()
+    if cwd_candidate.exists():
+        return cwd_candidate
+
+    # 2) Try path relative to backend directory.
     backend_dir = Path(__file__).resolve().parents[2]
-    return (backend_dir / candidate).resolve()
+    backend_candidate = (backend_dir / candidate).resolve()
+    if backend_candidate.exists():
+        return backend_candidate
+
+    # 3) Try path relative to project root.
+    project_root = backend_dir.parent
+    project_candidate = (project_root / candidate).resolve()
+    if project_candidate.exists():
+        return project_candidate
+
+    # Fall back to backend-relative path for a clear error message in caller.
+    return backend_candidate
 
 
 def _ensure_timezone_aware(start_datetime: datetime) -> datetime:
