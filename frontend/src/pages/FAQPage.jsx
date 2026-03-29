@@ -24,7 +24,7 @@ function FAQPage() {
 
         <article className="card">
           <h3>Address</h3>
-          <p>VitaPulse Clinic Address</p>
+          <p>Okara</p>
         </article>
       </div>
     </section>
