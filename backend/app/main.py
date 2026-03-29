@@ -5,11 +5,12 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.core.logging import logger
-from app.db.database import Base, engine
+from app.db.database import Base, engine, run_startup_migrations
 from app.api.routes import chat, appointments, health
 
 # Create database tables
 Base.metadata.create_all(bind=engine)
+run_startup_migrations()
 
 # Initialize FastAPI app
 app = FastAPI(

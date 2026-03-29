@@ -61,6 +61,18 @@ router = APIRouter(
     tags=["chat"],
 )
 
+BOOKING_STATE_KEYS = (
+    "patient_name",
+    "email",
+    "service",
+    "requested_date_text",
+    "requested_time_text",
+    "normalized_datetime",
+    "notes",
+    "needs_followup",
+    "followup_question",
+)
+
 # Simple in-memory session store
 # Note: good for testing/dev only, not for production
 SESSION_STORE = {}
@@ -75,7 +87,7 @@ def get_default_booking_state():
         "requested_time_text": "",
         "normalized_datetime": "",
         "notes": "",
-        "needs_followup": None,
+        "needs_followup": False,
         "followup_question": "",
     }
 
@@ -99,18 +111,30 @@ async def chat(request: ChatRequest):
         session_data = SESSION_STORE.get(session_id, {})
         booking_state = session_data.get("booking_state", get_default_booking_state())
 
-        # Pass previous booking state into graph
+        # Flatten previous booking state into graph state so booking prompts can use it.
         state = {
             "raw_message": request.message.strip(),
-            "session_id": session_id,
-            "booking_state": booking_state,
+            **booking_state,
         }
 
         # Invoke graph
         final_state = agent_graph.invoke(state)
 
-        # Save updated booking state back into session store
-        updated_booking_state = final_state.get("booking_state", booking_state)
+        # Save updated booking fields for next turn.
+        updated_booking_state = {
+            key: final_state.get(key, booking_state.get(key, get_default_booking_state().get(key)))
+            for key in BOOKING_STATE_KEYS
+        }
+
+        # Clear session booking context after successful completion.
+        booking_completed = (
+            final_state.get("intent") == "booking"
+            and not updated_booking_state.get("needs_followup", False)
+            and str(final_state.get("response", "")).startswith("Appointment booked with ID")
+        )
+        if booking_completed:
+            updated_booking_state = get_default_booking_state()
+
         SESSION_STORE[session_id] = {
             "booking_state": updated_booking_state
         }

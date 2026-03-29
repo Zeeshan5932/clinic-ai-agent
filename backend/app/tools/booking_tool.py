@@ -4,6 +4,7 @@ Booking tool - handles appointment booking logic
 from datetime import datetime
 from typing import Dict, Any
 from app.core.logging import logger
+from app.core.config import settings
 from app.db import models
 from app.db.database import SessionLocal
 from app.services import calendar_service, email_service
@@ -24,8 +25,8 @@ def book_appointment(state: Dict[str, Any]) -> str:
     when = state.get("scheduled_time")
     notes = state.get("notes", "")
 
-    # Validate inputs
-    if not all([patient_name, email, service_name, when]):
+    # Validate required booking inputs (email is optional).
+    if not all([patient_name, service_name, when]):
         return "Error: Missing required booking information."
 
     db = SessionLocal()
@@ -73,14 +74,22 @@ def book_appointment(state: Dict[str, Any]) -> str:
     finally:
         db.close()
 
-    # Send confirmation email
-    email_service.send_booking_confirmation_email(
-        to_email=email,
-        patient_name=patient_name,
-        service_name=service_name,
-        scheduled_time=when,
-        appointment_id=appt.id,
-    )
+    # Notify clinic/doctor mailbox instead of asking user for email.
+    clinic_recipient = settings.CLINIC_EMAIL or settings.EMAIL_FROM
+    if clinic_recipient:
+        subject = f"New Booking - Appointment #{appt.id}"
+        body = (
+            f"A new appointment has been booked.\n\n"
+            f"Appointment ID: {appt.id}\n"
+            f"Patient Name: {patient_name}\n"
+            f"Patient Email: {email or 'Not provided'}\n"
+            f"Service: {service_name}\n"
+            f"Date & Time: {when}\n"
+            f"Notes: {notes or 'N/A'}\n"
+        )
+        email_service.send_email(to=clinic_recipient, subject=subject, body=body)
+    else:
+        logger.warning("No clinic recipient email configured (CLINIC_EMAIL/EMAIL_FROM).")
 
     return f"Appointment booked with ID {appt.id} for {patient_name} on {when}."
 

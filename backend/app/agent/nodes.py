@@ -35,6 +35,18 @@ def detect_intent(state: AgentState) -> AgentState:
     else:
         intent = str(result).strip().lower()
     
+    # Keep booking flow active during follow-up turns.
+    booking_in_progress = bool(
+        state.get("needs_followup")
+        or state.get("service")
+        or state.get("requested_date_text")
+        or state.get("requested_time_text")
+        or state.get("normalized_datetime")
+    )
+
+    if booking_in_progress and intent == "faq":
+        intent = "booking"
+
     # Validate intent
     if intent not in ["booking", "reschedule", "cancel", "faq"]:
         intent = "faq"
