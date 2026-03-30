@@ -4,7 +4,7 @@ function Navbar() {
   return (
     <header className="navbar-wrap">
       <div className="container navbar">
-        <NavLink to="/" className="brand">
+        <NavLink to="/" className="brand" aria-label="VitaPulse dashboard home">
           <span className="brand-mark" aria-hidden="true">
             <svg viewBox="0 0 64 64" role="img" focusable="false">
               <circle cx="32" cy="32" r="30" fill="rgba(255,255,255,0.15)" />
@@ -32,6 +32,12 @@ function Navbar() {
           <NavLink to="/guide">User Guide</NavLink>
           <NavLink to="/faq">FAQ</NavLink>
         </nav>
+
+        <div className="navbar-cta-wrap">
+          <NavLink className="btn btn-primary navbar-cta" to="/chat">
+            New Booking
+          </NavLink>
+        </div>
       </div>
     </header>
   );

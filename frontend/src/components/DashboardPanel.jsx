@@ -1,6 +1,6 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { fetchHealthStatus } from "../services/api";
+import { API_BASE_URL, fetchHealthStatus } from "../services/api";
 
 const FLOW_STEPS = [
   {
@@ -22,19 +22,61 @@ const FLOW_STEPS = [
 
 function DashboardPanel() {
   const navigate = useNavigate();
+  const [appointments, setAppointments] = useState([]);
+  const [healthState, setHealthState] = useState({ type: "", message: "" });
 
   const todayLabel = useMemo(
     () => new Intl.DateTimeFormat("en-PK", { dateStyle: "full" }).format(new Date()),
     []
   );
 
+  const metrics = useMemo(() => {
+    const total = appointments.length;
+    const scheduled = appointments.filter((item) => (item.status || "").toLowerCase() === "scheduled").length;
+    const cancelled = appointments.filter((item) => (item.status || "").toLowerCase() === "cancelled").length;
+    const completed = appointments.filter((item) => (item.status || "").toLowerCase() === "completed").length;
+
+    return { total, scheduled, cancelled, completed };
+  }, [appointments]);
+
+  useEffect(() => {
+    let mounted = true;
+
+    async function loadAppointments() {
+      const endpoints = ["/api/v1/appointments", "/appointments"];
+
+      for (const endpoint of endpoints) {
+        try {
+          const response = await fetch(`${API_BASE_URL}${endpoint}`);
+          if (!response.ok) {
+            throw new Error("Could not load appointment metrics.");
+          }
+
+          const data = await response.json();
+          if (mounted) {
+            setAppointments(Array.isArray(data) ? data : []);
+          }
+          return;
+        } catch {
+          // Try next endpoint fallback.
+        }
+      }
+    }
+
+    loadAppointments();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
   async function handleHealthCheck() {
     try {
       const result = await fetchHealthStatus();
       const status = result?.status || "healthy";
-      window.alert(`System status: ${status}`);
+      setHealthState({ type: "success", message: `System status: ${status}` });
     } catch {
-      window.alert("System status check failed. Please try again.");
+      setHealthState({ type: "error", message: "System status check failed. Please try again." });
     }
   }
 
@@ -68,8 +110,20 @@ function DashboardPanel() {
           <p>{todayLabel}</p>
         </article>
         <article className="dashboard-metric">
-          <h3>Assistant Mode</h3>
-          <p>Live and ready for booking, cancel, and FAQ workflows.</p>
+          <h3>Live Appointments</h3>
+          <p>{metrics.total} total records</p>
+        </article>
+        <article className="dashboard-metric">
+          <h3>Scheduled</h3>
+          <p>{metrics.scheduled} active bookings</p>
+        </article>
+        <article className="dashboard-metric">
+          <h3>Completed</h3>
+          <p>{metrics.completed} finished visits</p>
+        </article>
+        <article className="dashboard-metric">
+          <h3>Cancelled</h3>
+          <p>{metrics.cancelled} cancelled bookings</p>
         </article>
         <article className="dashboard-metric">
           <h3>Need a walkthrough?</h3>
@@ -79,6 +133,12 @@ function DashboardPanel() {
           </Link>
         </article>
       </div>
+
+      {healthState.message ? (
+        <p className={`dashboard-health ${healthState.type === "error" ? "dashboard-health-error" : "dashboard-health-success"}`}>
+          {healthState.message}
+        </p>
+      ) : null}
 
       <div className="dashboard-flow">
         {FLOW_STEPS.map((step, index) => (

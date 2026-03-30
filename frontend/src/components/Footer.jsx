@@ -2,8 +2,8 @@ function Footer() {
   return (
     <footer className="footer-wrap">
       <div className="container footer">
-        <p>VitaPulse Clinic</p>
-        <p>AI-powered reception for modern patient care.</p>
+        <p>VitaPulse Clinic CareOS</p>
+        <p>AI-powered reception and scheduling for modern patient care.</p>
       </div>
     </footer>
   );
