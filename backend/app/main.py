@@ -9,8 +9,6 @@ from app.db.database import Base, engine, run_startup_migrations
 from app.api.routes import chat, appointments, health
 from app.api.routes.whatsapp import router as whatsapp_router
 
-
-app.include_router(whatsapp_router, prefix="/whatsapp", tags=["whatsapp"])
 # Create database tables
 Base.metadata.create_all(bind=engine)
 run_startup_migrations()
@@ -35,6 +33,7 @@ app.add_middleware(
 app.include_router(health.router)
 app.include_router(chat.router)
 app.include_router(appointments.router)
+app.include_router(whatsapp_router)
 
 # Root endpoint
 @app.get("/")
