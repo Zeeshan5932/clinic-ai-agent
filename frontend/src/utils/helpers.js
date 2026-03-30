@@ -8,6 +8,8 @@ export function formatDateTime(value) {
 export function getStatusClass(status) {
   const normalized = (status || "").toLowerCase();
   if (normalized === "scheduled") return "status status-scheduled";
+  if (normalized === "booked") return "status status-scheduled";
+  if (normalized === "pending") return "status status-pending";
   if (normalized === "cancelled") return "status status-cancelled";
   if (normalized === "completed") return "status status-completed";
   return "status";

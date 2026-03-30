@@ -10,7 +10,10 @@ const QUICK_ACTIONS = [
 function QuickActions({ onAction }) {
   return (
     <section className="quick-actions card">
-      <h3>Quick Actions</h3>
+      <div className="quick-actions-head">
+        <h3>Quick Actions</h3>
+        <p>Use common requests to speed up daily reception tasks.</p>
+      </div>
       <div className="quick-actions-grid">
         {QUICK_ACTIONS.map((action) => (
           <button
@@ -18,6 +21,7 @@ function QuickActions({ onAction }) {
             type="button"
             className="btn btn-secondary"
             onClick={() => onAction(action.message)}
+            title={action.message}
           >
             {action.label}
           </button>
