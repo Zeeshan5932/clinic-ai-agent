@@ -20,20 +20,60 @@ from app.tools import (
 )
 
 
+PRICING_KEYWORDS = {
+    "fee",
+    "fees",
+    "price",
+    "prices",
+    "charges",
+    "charge",
+    "cost",
+    "package",
+    "estimate",
+    "range",
+}
+
+SCHEDULING_KEYWORDS = {
+    "book",
+    "booking",
+    "appointment",
+    "schedule",
+    "reschedule",
+    "cancel",
+    "tomorrow",
+    "today",
+    "date",
+    "time",
+    "am",
+    "pm",
+}
+
+
+def _contains_any_keyword(text: str, keywords: set[str]) -> bool:
+    lowered = text.lower()
+    return any(keyword in lowered for keyword in keywords)
+
+
 def detect_intent(state: AgentState) -> AgentState:
     """
     Detect user intent using LLM.
     Returns one of: booking, reschedule, cancel, faq
     """
     message = state.get("raw_message", "")
-    prompt = prompts.INTENT_PROMPT.format(message=message)
-    result = llm.invoke(prompt)
+    is_pricing_query = _contains_any_keyword(message, PRICING_KEYWORDS)
+    is_scheduling_query = _contains_any_keyword(message, SCHEDULING_KEYWORDS)
+
+    if is_pricing_query and not is_scheduling_query:
+        intent = "faq"
+    else:
+        prompt = prompts.INTENT_PROMPT.format(message=message)
+        result = llm.invoke(prompt)
     
     # Extract text content from result
-    if hasattr(result, 'content'):
-        intent = result.content.strip().lower()
-    else:
-        intent = str(result).strip().lower()
+        if hasattr(result, 'content'):
+            intent = result.content.strip().lower()
+        else:
+            intent = str(result).strip().lower()
     
     # Keep booking flow active during follow-up turns.
     booking_in_progress = bool(
@@ -44,8 +84,11 @@ def detect_intent(state: AgentState) -> AgentState:
         or state.get("normalized_datetime")
     )
 
-    if booking_in_progress and intent == "faq":
+    if booking_in_progress and intent == "faq" and is_scheduling_query and not is_pricing_query:
         intent = "booking"
+
+    if intent == "booking" and is_pricing_query and not is_scheduling_query:
+        intent = "faq"
 
     # Validate intent
     if intent not in ["booking", "reschedule", "cancel", "faq"]:

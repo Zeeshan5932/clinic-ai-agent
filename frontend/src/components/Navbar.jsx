@@ -28,6 +28,7 @@ function Navbar() {
           <NavLink to="/" end>Dashboard</NavLink>
           <NavLink to="/chat">Chat</NavLink>
           <NavLink to="/appointments">Appointments</NavLink>
+          <NavLink to="/fees">Fees</NavLink>
           <NavLink to="/guide">User Guide</NavLink>
           <NavLink to="/faq">FAQ</NavLink>
         </nav>

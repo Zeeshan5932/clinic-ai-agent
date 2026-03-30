@@ -1,5 +1,7 @@
 const QUICK_ACTIONS = [
   { label: "Book Appointment", message: "I want to book an appointment for a skin consultation." },
+  { label: "Doctor Consultation Fee", message: "What is doctor consultation fee and follow-up fee?" },
+  { label: "Skin Treatment Fees", message: "Show me skin treatment fees and suggest best option for acne." },
   { label: "Reschedule Appointment", message: "I need to reschedule my appointment. My appointment ID is 1." },
   { label: "Cancel Appointment", message: "Please cancel my appointment. My appointment ID is 1." },
   { label: "Check Clinic Hours", message: "What are your clinic working hours?" },

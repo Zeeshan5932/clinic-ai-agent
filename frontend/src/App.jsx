@@ -4,6 +4,7 @@ import Footer from "./components/Footer";
 import Home from "./pages/Home";
 import ChatPage from "./pages/ChatPage";
 import AppointmentsPage from "./pages/AppointmentsPage";
+import FeesPage from "./pages/FeesPage";
 import FAQPage from "./pages/FAQPage";
 import UserGuidePage from "./pages/UserGuidePage";
 import NotFound from "./pages/NotFound";
@@ -17,6 +18,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/chat" element={<ChatPage />} />
           <Route path="/appointments" element={<AppointmentsPage />} />
+          <Route path="/fees" element={<FeesPage />} />
           <Route path="/faq" element={<FAQPage />} />
           <Route path="/guide" element={<UserGuidePage />} />
           <Route path="/home" element={<Navigate to="/" replace />} />

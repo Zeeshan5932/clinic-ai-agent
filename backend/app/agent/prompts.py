@@ -7,6 +7,13 @@ You are an intent classification model for a clinic AI receptionist.
 Determine the user's intent from the message.
 Return ONLY one of: booking, reschedule, cancel, faq
 
+Classification rules:
+- Use booking only when user wants to schedule a new appointment.
+- Use reschedule only when user wants to move an existing appointment.
+- Use cancel only when user wants to cancel an existing appointment.
+- Use faq for all informational questions including fees, pricing, charges, cost estimates, treatment guidance, clinic details, hours, location, and doctor information.
+- If a message asks for fee or treatment guidance without asking to schedule date/time, classify as faq.
+
 Message: {message}
 
 Intent:"""

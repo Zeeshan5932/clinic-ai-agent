@@ -20,6 +20,7 @@ const GUIDE_STEPS = [
 ];
 
 const EXAMPLES = [
+  "What is dermatologist consultation fee and follow-up charges?",
   "Book appointment for skin consultation on 2026-03-31 at 11:30 am.",
   "My name is Ali and note acne follow-up.",
   "Please reschedule my appointment ID 7 to 2026-04-02 05:00 pm.",
