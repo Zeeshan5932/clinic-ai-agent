@@ -57,14 +57,16 @@ def send_booking_confirmation_email(
     appointment_id: int,
 ) -> bool:
     """Send a standardized booking confirmation message."""
-    subject = f"Booking Confirmed - Appointment #{appointment_id}"
+    subject = f"Your Appointment is Confirmed | #{appointment_id}"
     body = (
         f"Dear {patient_name},\n\n"
-        f"Your appointment has been confirmed.\n"
-        f"Appointment ID: {appointment_id}\n"
-        f"Service: {service_name}\n"
-        f"Date & Time: {scheduled_time}\n\n"
-        f"Thank you,\n"
+        f"Great news. Your appointment has been successfully confirmed.\n\n"
+        f"Appointment Details\n"
+        f"- Appointment ID: {appointment_id}\n"
+        f"- Service: {service_name}\n"
+        f"- Date & Time: {scheduled_time}\n\n"
+        f"If you need to reschedule or cancel, please reply to this email or contact us.\n\n"
+        f"Warm regards,\n"
         f"{settings.EMAIL_FROM_NAME or 'Clinic Reception'}"
     )
     return send_email(to=to_email, subject=subject, body=body)
