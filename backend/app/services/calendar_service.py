@@ -129,5 +129,13 @@ def cancel_calendar_event(event_id: str) -> str:
     """
     Cancel a calendar event.
     """
-    logger.info(f"Cancelling calendar event {event_id}")
+    if not event_id:
+        raise ValueError("Google Calendar event_id is required")
+
+    calendar_service = get_calendar_service()
+    calendar_service.events().delete(
+        calendarId=settings.GOOGLE_CALENDAR_ID,
+        eventId=event_id,
+    ).execute()
+    logger.info("Google Calendar event cancelled successfully: event_id=%s", event_id)
     return f"Calendar event {event_id} cancelled"

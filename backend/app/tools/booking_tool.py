@@ -77,21 +77,26 @@ def book_appointment(state: Dict[str, Any]) -> str:
     # Notify clinic/doctor mailbox instead of asking user for email.
     clinic_recipient = settings.CLINIC_EMAIL or settings.EMAIL_FROM
     if clinic_recipient:
-        subject = f"New Booking - Appointment #{appt.id}"
+        subject = f"New Appointment Booked | #{appt.id}"
         body = (
-            f"A new appointment has been booked.\n\n"
-            f"Appointment ID: {appt.id}\n"
-            f"Patient Name: {patient_name}\n"
-            f"Patient Email: {email or 'Not provided'}\n"
-            f"Service: {service_name}\n"
-            f"Date & Time: {when}\n"
-            f"Notes: {notes or 'N/A'}\n"
+            f"A new appointment has been scheduled successfully.\n\n"
+            f"Appointment Summary\n"
+            f"- Appointment ID: {appt.id}\n"
+            f"- Patient Name: {patient_name}\n"
+            f"- Patient Email: {email or 'Not provided'}\n"
+            f"- Service: {service_name}\n"
+            f"- Date & Time: {when}\n"
+            f"- Notes: {notes or 'N/A'}\n\n"
+            f"Please review and take any required follow-up action.\n"
         )
         email_service.send_email(to=clinic_recipient, subject=subject, body=body)
     else:
         logger.warning("No clinic recipient email configured (CLINIC_EMAIL/EMAIL_FROM).")
 
-    return f"Appointment booked with ID {appt.id} for {patient_name} on {when}."
+    return (
+        f"Your appointment is confirmed. "
+        f"Appointment ID: {appt.id}, Service: {service_name}, Date & Time: {when}."
+    )
 
 
 __all__ = ["book_appointment"]
