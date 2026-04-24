@@ -21,8 +21,8 @@ async function parseResponse(response) {
   return body;
 }
 
-export async function sendChatMessage(message) {
-  const payload = { message };
+export async function sendChatMessage(message, sessionId) {
+  const payload = { message, session_id: sessionId };
 
   const response = await fetch(buildApiUrl("/api/v1/chat"), {
     method: "POST",
