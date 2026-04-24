@@ -92,6 +92,17 @@ def get_default_booking_state():
     }
 
 
+def _is_booking_confirmation_response(response: str) -> bool:
+    """Detect booking confirmation text variants to safely clear booking state."""
+    if not response:
+        return False
+    normalized = response.lower()
+    return (
+        "appointment id:" in normalized
+        and ("appointment booked" in normalized or "appointment is confirmed" in normalized)
+    )
+
+
 @router.post("", response_model=ChatResponse)
 async def chat(request: ChatRequest):
     """
@@ -130,7 +141,7 @@ async def chat(request: ChatRequest):
         booking_completed = (
             final_state.get("intent") == "booking"
             and not updated_booking_state.get("needs_followup", False)
-            and str(final_state.get("response", "")).startswith("Appointment booked with ID")
+            and _is_booking_confirmation_response(str(final_state.get("response", "")))
         )
         if booking_completed:
             updated_booking_state = get_default_booking_state()

@@ -2,6 +2,17 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { sendChatMessage } from "../services/api";
 import { createMessage } from "../utils/helpers";
 
+
+function getOrCreateSessionId() {
+  const key = "vitapulse_chat_session_id";
+  const existing = window.localStorage.getItem(key);
+  if (existing) return existing;
+
+  const created = `web-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+  window.localStorage.setItem(key, created);
+  return created;
+}
+
 export function useChat(initialMessages = []) {
   const [messages, setMessages] = useState(initialMessages);
   const [input, setInput] = useState("");
@@ -9,6 +20,7 @@ export function useChat(initialMessages = []) {
   const [error, setError] = useState("");
   const listRef = useRef(null);
   const inFlightRef = useRef(false);
+  const sessionIdRef = useRef(getOrCreateSessionId());
 
   const canSend = useMemo(() => input.trim().length > 0 && !isLoading, [input, isLoading]);
 
@@ -31,7 +43,7 @@ export function useChat(initialMessages = []) {
     setMessages((prev) => [...prev, userMsg]);
 
     try {
-      const data = await sendChatMessage(cleanText);
+      const data = await sendChatMessage(cleanText, sessionIdRef.current);
       const assistantText = data?.response || "I could not generate a response.";
       const assistantMsg = createMessage("assistant", assistantText);
       setMessages((prev) => [...prev, assistantMsg]);
