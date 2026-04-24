@@ -84,7 +84,9 @@ def detect_intent(state: AgentState) -> AgentState:
         or state.get("normalized_datetime")
     )
 
-    if booking_in_progress and intent == "faq" and is_scheduling_query and not is_pricing_query:
+    # During an active booking flow, keep collecting missing fields (e.g., name-only replies)
+    # unless the user is clearly asking a pricing-only FAQ.
+    if booking_in_progress and intent == "faq" and not is_pricing_query:
         intent = "booking"
 
     if intent == "booking" and is_pricing_query and not is_scheduling_query:
@@ -281,6 +283,8 @@ def booking_node(state: AgentState) -> AgentState:
 
     if not validation["is_valid"]:
         normalized_data = validation["normalized_data"]
+        # Persist normalized follow-up state so next turn stays in booking context.
+        state.update(normalized_data)
         followup_question = normalized_data.get("followup_question")
         state["response"] = (
             followup_question
