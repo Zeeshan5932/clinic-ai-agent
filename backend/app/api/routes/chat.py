@@ -52,6 +52,7 @@
 Chat API routes
 """
 from fastapi import APIRouter, HTTPException, status
+from uuid import uuid4
 from app.schemas.chat import ChatRequest, ChatResponse
 from app.agent.graph import agent_graph
 from app.core.logging import logger
@@ -115,8 +116,9 @@ async def chat(request: ChatRequest):
                 detail="Message cannot be empty",
             )
 
-        # Use provided session_id if available, otherwise fallback
-        session_id = getattr(request, "session_id", None) or "default"
+        # Use provided session_id; otherwise create isolated anonymous session
+        # to prevent cross-user state leakage.
+        session_id = getattr(request, "session_id", None) or f"anon-{uuid4().hex}"
 
         # Load previous session state
         session_data = SESSION_STORE.get(session_id, {})
