@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://clinic-ai-agent-u20o.onrender.com";
 const NORMALIZED_API_BASE_URL = API_BASE_URL.endsWith("/")
   ? API_BASE_URL.slice(0, -1)
   : API_BASE_URL;
