@@ -18,4 +18,8 @@ google-api-python-client
 google-auth
 tzdata
 
+<<<<<<< HEAD
 pytest==7.4.3
+=======
+pytest==7.4.3
+>>>>>>> 0caceca88caa63f6abc10ba4219de65bbfc503ef
