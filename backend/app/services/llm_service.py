@@ -6,6 +6,9 @@ from langchain.llms import BaseLLM
 from langchain_groq import ChatGroq
 from app.core.config import settings
 from app.core.logging import logger
+from dotenv import load_dotenv
+
+load_dotenv()  # Load environment variables from .env files
 
 
 def get_llm() -> BaseLLM:
